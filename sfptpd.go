@@ -43,8 +43,17 @@ func setBool(gauge prometheus.Gauge, value bool) {
 	}
 }
 
-// parseTime parses a time string in the format "2022-07-29 15:52:46.121677"
-func parseTime(timeStr string) (int64, error) {
+// parseTime6 parses a time string in the format "2022-07-29 15:52:46.121677"
+func parseTime6(timeStr string) (int64, error) {
+	t, err := time.Parse("2006-01-02 15:04:05.000000", timeStr)
+	if err != nil {
+		return -1, err
+	}
+	return t.UnixNano(), nil
+}
+
+// parseTime9 parses a time string in the format "2022-07-29 15:52:46.121677000"
+func parseTime9(timeStr string) (int64, error) {
 	t, err := time.Parse("2006-01-02 15:04:05.000000000", timeStr)
 	if err != nil {
 		return -1, err
@@ -63,15 +72,15 @@ func processLine(line string) {
 
 	gaugeVec(metricLastUpdate, stats.Instance).SetToCurrentTime()
 
-	t, err := parseTime(stats.Time)
+	t, err := parseTime6(stats.Time)
 	if err != nil {
 		log.Warnf("Error parsing time: %s", err)
 	}
-	masterTime, err := parseTime(stats.ClockMaster.Time)
+	masterTime, err := parseTime9(stats.ClockMaster.Time)
 	if err != nil {
 		log.Warnf("Error parsing master time %s: %s", stats.ClockMaster.Time, err)
 	}
-	slaveTime, err := parseTime(stats.ClockSlave.Time)
+	slaveTime, err := parseTime9(stats.ClockSlave.Time)
 	if err != nil {
 		log.Warnf("Error parsing slave time %s: %s", stats.ClockSlave.Time, err)
 	}

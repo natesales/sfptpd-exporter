@@ -49,7 +49,7 @@ func parseTime6(timeStr string) (int64, error) {
 	if err != nil {
 		return -1, err
 	}
-	return t.UnixNano(), nil
+	return t.UnixNano() / 1000000, nil
 }
 
 // parseTime9 parses a time string in the format "2022-07-29 15:52:46.121677000"
@@ -58,7 +58,7 @@ func parseTime9(timeStr string) (int64, error) {
 	if err != nil {
 		return -1, err
 	}
-	return t.UnixNano(), nil
+	return t.UnixNano() / 1000000, nil
 }
 
 func processLine(line string) {

@@ -45,7 +45,7 @@ func setBool(gauge prometheus.Gauge, value bool) {
 
 // parseTime parses a time string in the format "2022-07-29 15:52:46.121677"
 func parseTime(timeStr string) (int64, error) {
-	t, err := time.Parse("2006-01-02 15:04:05.000000", timeStr)
+	t, err := time.Parse("2006-01-02 15:04:05.000000000", timeStr)
 	if err != nil {
 		return -1, err
 	}
@@ -65,10 +65,23 @@ func processLine(line string) {
 
 	t, err := parseTime(stats.Time)
 	if err != nil {
-		log.Errorf("Error parsing time: %s", err)
-		return
+		log.Warnf("Error parsing time: %s", err)
+	}
+	masterTime, err := parseTime(stats.ClockMaster.Time)
+	if err != nil {
+		log.Warnf("Error parsing master time %s: %s", stats.ClockMaster.Time, err)
+	}
+	slaveTime, err := parseTime(stats.ClockSlave.Time)
+	if err != nil {
+		log.Warnf("Error parsing slave time %s: %s", stats.ClockSlave.Time, err)
 	}
 	gaugeVec(metricTime, stats.Instance).Set(float64(t))
+	metricMaster.With(map[string]string{"instance": stats.Instance, "name": stats.ClockMaster.Name}).Set(float64(masterTime))
+	metricSlave.With(map[string]string{
+		"instance":          stats.Instance,
+		"name":              stats.ClockSlave.Name,
+		"primary-interface": stats.ClockSlave.PrimaryInterface,
+	}).Set(float64(slaveTime))
 	setBool(gaugeVec(metricIsDisciplining, stats.Instance), stats.IsDisciplining)
 	setBool(gaugeVec(metricInSync, stats.Instance), stats.InSync)
 	gaugeVec(metricAlarms, stats.Instance).Set(float64(len(stats.Alarms)))

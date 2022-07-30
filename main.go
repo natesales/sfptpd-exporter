@@ -29,6 +29,12 @@ var (
 	metricTime = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "sfptpd_time",
 	}, []string{"instance"})
+	metricMaster = promauto.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "sfptpd_master",
+	}, []string{"instance", "name"})
+	metricSlave = promauto.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "sfptpd_slave",
+	}, []string{"instance", "name", "primary-interface"})
 	metricIsDisciplining = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "sfptpd_is_disciplining",
 	}, []string{"instance"})

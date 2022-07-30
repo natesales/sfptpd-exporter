@@ -80,7 +80,7 @@ func processLine(line string) {
 	metricSlave.With(map[string]string{
 		"instance":          stats.Instance,
 		"name":              stats.ClockSlave.Name,
-		"primary-interface": stats.ClockSlave.PrimaryInterface,
+		"primary_interface": stats.ClockSlave.PrimaryInterface,
 	}).Set(float64(slaveTime))
 	setBool(gaugeVec(metricIsDisciplining, stats.Instance), stats.IsDisciplining)
 	setBool(gaugeVec(metricInSync, stats.Instance), stats.InSync)

@@ -34,7 +34,7 @@ var (
 	}, []string{"instance", "name"})
 	metricSlave = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "sfptpd_slave",
-	}, []string{"instance", "name", "primary-interface"})
+	}, []string{"instance", "name", "primary_interface"})
 	metricIsDisciplining = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "sfptpd_is_disciplining",
 	}, []string{"instance"})

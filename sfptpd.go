@@ -70,7 +70,7 @@ func processLine(line string) {
 	}
 	log.Debugf("Parsed stats: %+v", stats)
 
-	gaugeVec(metricLastUpdate, stats.Instance).Set(float64(time.Now().Unix()))
+	gaugeVec(metricLastUpdate, stats.Instance).Set(float64(time.Now().UTC().UnixNano() / 1000000))
 
 	t, err := parseTime6(stats.Time)
 	if err != nil {

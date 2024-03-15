@@ -1,11 +1,11 @@
 package main
 
 import (
-	"bufio"
 	"flag"
 	"net/http"
 	"os"
 
+	"github.com/hpcloud/tail"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -58,6 +58,30 @@ var (
 	}, []string{"instance"})
 )
 
+func tailLogFile(filename string) {
+	// Open the log file with tail package
+	t, err := tail.TailFile(filename, tail.Config{
+		Follow:    true,
+		ReOpen:    true,
+		Poll:      true,
+		MustExist: false,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Start reading lines from the log file
+	for line := range t.Lines {
+		//log.Println(line.Text)
+		processLine(line.Text)
+	}
+
+	// Handle any errors
+	if err := t.Err(); err != nil {
+		log.Fatal(err)
+	}
+}
+
 func main() {
 	flag.Parse()
 	if *verbose {
@@ -72,21 +96,11 @@ func main() {
 	log.Infof("Starting sfptpd-exporter version %s stats from %s", version, *statsFile)
 
 	// Create a new reader from the JSONL file
-	file, err := os.Open(*statsFile)
+	_, err := os.Open(*statsFile)
 	if err != nil {
 		log.Fatalf("Error opening JSONL file: %s", err)
 	}
-	reader := bufio.NewReader(file)
-
-	go func() {
-		for {
-			scanner := bufio.NewScanner(reader)
-			scanner.Split(bufio.ScanLines)
-			for scanner.Scan() {
-				processLine(scanner.Text())
-			}
-		}
-	}()
+	go tailLogFile(*statsFile)
 
 	// Metrics server
 	metricsMux := http.NewServeMux()

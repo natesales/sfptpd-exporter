@@ -86,6 +86,13 @@ func main() {
 				processLine(scanner.Text())
 			}
 		}
+		
+		if err := scanner.Err(); err != nil {
+			log.Errorf("Error reading from file: %s", err)
+			time.Sleep(1 * time.Second)
+		} else {
+			time.Sleep(200 * time.Millisecond)
+		}
 	}()
 
 	// Metrics server
